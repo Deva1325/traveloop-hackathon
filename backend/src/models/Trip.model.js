@@ -35,7 +35,7 @@ module.exports = (sequelize) => {
     },
     status: {
       type: DataTypes.STRING(50),
-      defaultValue: 'Draft',
+      defaultValue: 'Planned',
       field: 'Status'
     },
     budget: {
