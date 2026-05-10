@@ -6,7 +6,8 @@ const createTripSchema = Joi.object({
   startDate: Joi.date().required(),
   endDate: Joi.date().required(),
   coverImage: Joi.string().uri().allow(null, ''),
-  budget: Joi.number().min(0).allow(null)
+  budget: Joi.number().min(0).allow(null),
+  destinations: Joi.array().items(Joi.any()).optional()
 });
 
 module.exports = { createTripSchema };

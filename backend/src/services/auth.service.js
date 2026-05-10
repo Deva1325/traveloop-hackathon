@@ -30,6 +30,14 @@ class AuthService {
     return this._generateTokens(user.UserId);
   }
 
+  async getProfile(userId) {
+    const user = await userRepository.findById(userId);
+    if (!user) throw new ApiError(404, 'User not found');
+    
+    const { PasswordHash, ...userData } = user.toJSON();
+    return userData;
+  }
+
   async _generateTokens(userId) {
     const token = jwt.sign({ id: userId }, env.JWT_SECRET, { expiresIn: env.JWT_EXPIRES_IN });
     const refreshToken = jwt.sign({ id: userId }, env.JWT_REFRESH_SECRET, { expiresIn: env.JWT_REFRESH_EXPIRES_IN });

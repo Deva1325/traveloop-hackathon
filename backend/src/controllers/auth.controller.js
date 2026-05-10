@@ -11,5 +11,10 @@ class AuthController {
     const result = await authService.login(req.body.email, req.body.password);
     sendSuccess(res, 'Login successful', result);
   }
+
+  async getProfile(req, res) {
+    const user = await authService.getProfile(req.user.id);
+    sendSuccess(res, 'Profile retrieved', user);
+  }
 }
 module.exports = new AuthController();
