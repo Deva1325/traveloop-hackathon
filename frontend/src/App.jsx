@@ -6,6 +6,7 @@ import { useAuthStore } from '@/store/authStore';
 
 // Layouts
 import MainLayout from '@/layouts/MainLayout';
+import { Loader2 } from 'lucide-react';
 
 // Pages
 import Dashboard from '@/pages/Dashboard';
@@ -70,10 +71,20 @@ function PublicRoute({ children }) {
 
 function App() {
   const checkAuth = useAuthStore((state) => state.checkAuth);
+  const isCheckingAuth = useAuthStore((state) => state.isCheckingAuth);
 
   useEffect(() => {
     checkAuth();
   }, [checkAuth]);
+
+  if (isCheckingAuth) {
+    return (
+      <div className="h-screen w-full flex flex-col items-center justify-center gap-4 bg-background">
+        <Loader2 className="w-12 h-12 text-primary animate-spin" />
+        <p className="text-muted-foreground font-medium animate-pulse">Initializing Traveloop...</p>
+      </div>
+    );
+  }
 
   return (
     <QueryClientProvider client={queryClient}>

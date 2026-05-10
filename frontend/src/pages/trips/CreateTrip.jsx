@@ -8,8 +8,10 @@ import toast from 'react-hot-toast';
 import { MapPin, Calendar as CalendarIcon, Wallet, ArrowRight, ArrowLeft, Check, Image as ImageIcon } from 'lucide-react';
 
 import { createTrip } from '@/api/trips.api';
+import { uploadImage } from '@/api/upload.api';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { Loader2, Upload } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/Card';
 
 const tripSchema = z.object({
@@ -19,6 +21,22 @@ const tripSchema = z.object({
   endDate: z.string().min(1, 'End date is required'),
   budget: z.string().min(1, 'Budget is required'),
   coverImage: z.string().optional(),
+}).refine(data => {
+  const start = new Date(data.startDate);
+  const end = new Date(data.endDate);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  return start >= today;
+}, {
+  message: "Start date cannot be in the past",
+  path: ["startDate"]
+}).refine(data => {
+  const start = new Date(data.startDate);
+  const end = new Date(data.endDate);
+  return end >= start;
+}, {
+  message: "End date must be after start date",
+  path: ["endDate"]
 });
 
 const STEPS = [
@@ -29,16 +47,18 @@ const STEPS = [
 
 export default function CreateTrip() {
   const [step, setStep] = useState(1);
+  const [isUploading, setIsUploading] = useState(false);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  const { register, handleSubmit, formState: { errors, isValid }, trigger, watch } = useForm({
+  const { register, handleSubmit, formState: { errors, isValid }, trigger, watch, setValue } = useForm({
     resolver: zodResolver(tripSchema),
     mode: 'onChange',
     defaultValues: {
       coverImage: 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=800&q=80',
     }
   });
+
 
   const formValues = watch();
 
@@ -65,11 +85,26 @@ export default function CreateTrip() {
 
   const prevStep = () => setStep((s) => s - 1);
 
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    try {
+      const data = await uploadImage(file);
+      setValue('coverImage', data.url);
+      toast.success('Image uploaded!');
+    } catch (error) {
+      toast.error('Upload failed');
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   const onSubmit = (data) => {
     mutation.mutate({
       ...data,
-      budget: Number(data.budget),
-      destinations: [] // Will be added later in planner
+      budget: Number(data.budget)
     });
   };
 
@@ -124,14 +159,43 @@ export default function CreateTrip() {
 
                 <div className="space-y-2">
                   <label className="text-sm font-medium flex items-center gap-2">
-                    <ImageIcon className="w-4 h-4" /> Cover Image URL
+                    <ImageIcon className="w-4 h-4" /> Cover Image
                   </label>
-                  <Input {...register("coverImage")} placeholder="https://..." />
-                  {formValues.coverImage && (
-                    <div className="mt-2 rounded-xl overflow-hidden h-32 border relative">
-                      <img src={formValues.coverImage} alt="Cover Preview" className="w-full h-full object-cover" onError={(e) => e.target.style.display='none'} />
+                  <div className="flex flex-col gap-4">
+                    <div 
+                      className="border-2 border-dashed rounded-2xl p-8 flex flex-col items-center justify-center gap-3 hover:bg-muted/50 transition-colors cursor-pointer relative group"
+                      onClick={() => document.getElementById('image-upload').click()}
+                    >
+                      {isUploading ? (
+                        <Loader2 className="w-8 h-8 text-primary animate-spin" />
+                      ) : (
+                        <>
+                          <div className="p-3 bg-primary/10 rounded-full group-hover:scale-110 transition-transform">
+                            <Upload className="w-6 h-6 text-primary" />
+                          </div>
+                          <div className="text-center">
+                            <p className="font-medium">Click to upload cover image</p>
+                            <p className="text-xs text-muted-foreground mt-1">PNG, JPG or WEBP (Max 5MB)</p>
+                          </div>
+                        </>
+                      )}
+                      <input 
+                        id="image-upload" 
+                        type="file" 
+                        accept="image/*" 
+                        className="hidden" 
+                        onChange={handleImageUpload}
+                        disabled={isUploading}
+                      />
                     </div>
-                  )}
+                    
+                    {formValues.coverImage && (
+                      <div className="relative rounded-xl overflow-hidden h-48 border shadow-inner">
+                        <img src={formValues.coverImage} alt="Cover Preview" className="w-full h-full object-cover" />
+                        <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors"></div>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             )}
@@ -142,12 +206,12 @@ export default function CreateTrip() {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Start Date</label>
-                    <Input {...register("startDate")} type="date" />
+                    <Input {...register("startDate")} type="date" min={new Date().toISOString().split('T')[0]} />
                     {errors.startDate && <p className="text-sm text-destructive">{errors.startDate.message}</p>}
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-medium">End Date</label>
-                    <Input {...register("endDate")} type="date" />
+                    <Input {...register("endDate")} type="date" min={watch('startDate') || new Date().toISOString().split('T')[0]} />
                     {errors.endDate && <p className="text-sm text-destructive">{errors.endDate.message}</p>}
                   </div>
                 </div>

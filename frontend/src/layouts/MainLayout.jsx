@@ -14,6 +14,8 @@ import {
   Search,
   Bell
 } from 'lucide-react';
+import { useAuthStore } from '@/store/authStore';
+import { useNavigate } from 'react-router-dom';
 
 const SIDEBAR_ITEMS = [
   { label: 'Dashboard', icon: LayoutDashboard, href: '/dashboard' },
@@ -31,6 +33,13 @@ const BOTTOM_ITEMS = [
 export default function MainLayout() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, logout } = useAuthStore();
+  
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
   const isActive = (path) => location.pathname.startsWith(path);
 
@@ -79,7 +88,10 @@ export default function MainLayout() {
               <span>{item.label}</span>
             </Link>
           ))}
-          <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-colors text-destructive hover:bg-destructive/10 mt-2">
+          <button 
+            onClick={handleLogout}
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-colors text-destructive hover:bg-destructive/10 mt-2"
+          >
             <LogOut className="w-5 h-5" />
             <span>Logout</span>
           </button>
@@ -115,18 +127,22 @@ export default function MainLayout() {
           </div>
 
           <div className="flex items-center gap-4">
-            <button className="relative p-2 text-muted-foreground hover:bg-muted rounded-full transition-colors">
+            <button 
+              onClick={() => navigate('/notifications')}
+              className="relative p-2 text-muted-foreground hover:bg-muted rounded-full transition-colors"
+            >
               <Bell className="w-5 h-5" />
               <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-destructive rounded-full border border-card"></span>
             </button>
             <div className="hidden sm:block text-right">
-              <p className="text-sm font-medium leading-none">Alex Traveler</p>
+              <p className="text-sm font-medium leading-none">{user?.FullName || 'Traveler'}</p>
               <p className="text-xs text-muted-foreground mt-1">Pro Plan</p>
             </div>
             <img
-              src="https://i.pravatar.cc/150?u=a042581f4e29026704d"
+              src={user?.ProfileImageUrl || "https://i.pravatar.cc/150?u=a042581f4e29026704d"}
               alt="User"
-              className="w-9 h-9 rounded-full object-cover border-2 border-primary/20"
+              className="w-9 h-9 rounded-full object-cover border-2 border-primary/20 cursor-pointer hover:ring-2 hover:ring-primary/40 transition-all"
+              onClick={() => navigate('/profile')}
             />
           </div>
         </header>
