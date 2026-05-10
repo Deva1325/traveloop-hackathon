@@ -69,8 +69,8 @@ export default function CreateTrip() {
       toast.success('Trip created successfully!');
       navigate(`/trips/${data.id}`);
     },
-    onError: () => {
-      toast.error('Failed to create trip');
+    onError: (error) => {
+      toast.error(error?.response?.data?.message || error.message || 'Failed to create trip');
     }
   });
 

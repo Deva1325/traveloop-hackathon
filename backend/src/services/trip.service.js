@@ -3,8 +3,8 @@ const { ApiError } = require('../middlewares/error.middleware');
 
 class TripService {
   async createTrip(userId, data) {
-    if (new Date(data.startDate) >= new Date(data.endDate)) {
-      throw new ApiError(400, 'Start date must be before end date');
+    if (new Date(data.startDate) > new Date(data.endDate)) {
+      throw new ApiError(400, 'Start date cannot be after end date');
     }
     return await tripRepository.create({ ...data, userId });
   }

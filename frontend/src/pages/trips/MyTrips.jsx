@@ -12,7 +12,7 @@ import { Badge } from '@/components/ui/Badge';
 export default function MyTrips() {
   const [viewMode, setViewMode] = useState('grid');
   const [search, setSearch] = useState('');
-  
+
   const queryClient = useQueryClient();
   const { data: trips, isLoading } = useQuery({
     queryKey: ['trips'],
@@ -47,23 +47,23 @@ export default function MyTrips() {
       <div className="flex flex-col sm:flex-row items-center gap-4 bg-card p-4 rounded-xl shadow-sm border">
         <div className="relative flex-1 w-full">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input 
-            placeholder="Search your trips..." 
+          <Input
+            placeholder="Search your trips..."
             className="pl-9 w-full bg-muted/50 border-none"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
         <div className="flex items-center gap-2 self-end sm:self-auto">
-          <Button 
-            variant={viewMode === 'grid' ? 'secondary' : 'ghost'} 
+          <Button
+            variant={viewMode === 'grid' ? 'secondary' : 'ghost'}
             size="icon"
             onClick={() => setViewMode('grid')}
           >
             <Grid className="w-4 h-4" />
           </Button>
-          <Button 
-            variant={viewMode === 'list' ? 'secondary' : 'ghost'} 
+          <Button
+            variant={viewMode === 'list' ? 'secondary' : 'ghost'}
             size="icon"
             onClick={() => setViewMode('list')}
           >
@@ -74,7 +74,7 @@ export default function MyTrips() {
 
       {isLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[1,2,3].map(i => (
+          {[1, 2, 3].map(i => (
             <div key={i} className="bg-muted animate-pulse h-72 rounded-2xl"></div>
           ))}
         </div>
@@ -93,37 +93,37 @@ export default function MyTrips() {
         <div className={viewMode === 'grid' ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" : "space-y-4"}>
           {filteredTrips.map((trip) => (
             <div key={trip.id} className={`bg-card rounded-2xl overflow-hidden border shadow-sm group hover:shadow-lg transition-all ${viewMode === 'list' ? 'flex flex-row items-center h-32' : 'flex flex-col'}`}>
-              <div className={`relative ${viewMode === 'list' ? 'w-48 h-full flex-shrink-0' : 'aspect-video w-full'}`}>
+              <Link to={`/trips/${trip.id}`} className={`relative block overflow-hidden ${viewMode === 'list' ? 'w-48 h-full flex-shrink-0' : 'aspect-video w-full'}`}>
                 <img src={trip.coverImage} alt={trip.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                 <div className="absolute top-3 left-3">
                   <Badge variant={trip.status === 'planned' ? 'default' : 'secondary'} className="capitalize shadow-sm backdrop-blur-md bg-background/90 text-foreground">
                     {trip.status}
                   </Badge>
                 </div>
-              </div>
-              
+              </Link>
+
               <div className={`p-5 flex flex-col flex-1 ${viewMode === 'list' ? 'justify-center py-2' : ''}`}>
                 <div className="flex justify-between items-start mb-2">
                   <h3 className="font-bold text-xl line-clamp-1 group-hover:text-primary transition-colors">
                     <Link to={`/trips/${trip.id}`}>{trip.title}</Link>
                   </h3>
                 </div>
-                
+
                 <p className="text-muted-foreground text-sm flex items-center gap-2 mb-4">
                   <Calendar className="w-4 h-4" />
                   {new Date(trip.startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                 </p>
-                
+
                 <div className="flex items-center justify-between mt-auto pt-4 border-t">
                   <div className="flex items-center gap-1.5 text-sm font-medium">
                     <MapPin className="w-4 h-4 text-primary" />
                     {trip.destinations?.length || 0} Destinations
                   </div>
                   <div className="flex gap-2">
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      className="h-8 w-8 text-muted-foreground hover:text-primary" 
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-muted-foreground hover:text-primary"
                       title="Share"
                       onClick={(e) => {
                         e.preventDefault();
@@ -133,10 +133,10 @@ export default function MyTrips() {
                     >
                       <Share2 className="w-4 h-4" />
                     </Button>
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      className="h-8 w-8 text-muted-foreground hover:text-destructive" 
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-muted-foreground hover:text-destructive"
                       title="Delete"
                       onClick={() => {
                         if (confirm('Are you sure you want to delete this trip?')) {
