@@ -18,14 +18,14 @@ const Notification = require('./Notification.model')(sequelize);
 const UserSession = require('./UserSession.model')(sequelize);
 
 // Associations
-User.hasMany(Trip, { foreignKey: 'UserId' });
-Trip.belongsTo(User, { foreignKey: 'UserId' });
+User.hasMany(Trip, { foreignKey: 'userId' });
+Trip.belongsTo(User, { foreignKey: 'userId' });
 
 User.hasMany(UserSession, { foreignKey: 'UserId', onDelete: 'CASCADE' });
 UserSession.belongsTo(User, { foreignKey: 'UserId' });
 
-Trip.hasMany(TripStop, { foreignKey: 'TripId' });
-TripStop.belongsTo(Trip, { foreignKey: 'TripId' });
+Trip.hasMany(TripStop, { foreignKey: 'tripId' });
+TripStop.belongsTo(Trip, { foreignKey: 'tripId' });
 
 City.hasMany(TripStop, { foreignKey: 'CityId' });
 TripStop.belongsTo(City, { foreignKey: 'CityId' });
@@ -42,20 +42,20 @@ StopActivity.belongsTo(TripStop, { foreignKey: 'TripStopId' });
 Activity.hasMany(StopActivity, { foreignKey: 'ActivityId', onDelete: 'NO ACTION' });
 StopActivity.belongsTo(Activity, { foreignKey: 'ActivityId' });
 
-Trip.hasMany(Expense, { foreignKey: 'TripId' });
-Expense.belongsTo(Trip, { foreignKey: 'TripId' });
+Trip.hasMany(Expense, { foreignKey: 'tripId' });
+Expense.belongsTo(Trip, { foreignKey: 'tripId' });
 
 ExpenseCategory.hasMany(Expense, { foreignKey: 'ExpenseCategoryId' });
 Expense.belongsTo(ExpenseCategory, { foreignKey: 'ExpenseCategoryId' });
 
-Trip.hasMany(PackingItem, { foreignKey: 'TripId' });
-PackingItem.belongsTo(Trip, { foreignKey: 'TripId' });
+Trip.hasMany(PackingItem, { foreignKey: 'tripId' });
+PackingItem.belongsTo(Trip, { foreignKey: 'tripId' });
 
 PackingCategory.hasMany(PackingItem, { foreignKey: 'PackingCategoryId' });
 PackingItem.belongsTo(PackingCategory, { foreignKey: 'PackingCategoryId' });
 
-Trip.hasMany(Note, { foreignKey: 'TripId', onDelete: 'CASCADE' });
-Note.belongsTo(Trip, { foreignKey: 'TripId' });
+Trip.hasMany(Note, { foreignKey: 'tripId', onDelete: 'CASCADE' });
+Note.belongsTo(Trip, { foreignKey: 'tripId' });
 
 TripStop.hasMany(Note, { foreignKey: 'TripStopId', as: 'TripStopNotes', onDelete: 'NO ACTION' });
 Note.belongsTo(TripStop, { foreignKey: 'TripStopId', as: 'TripStop' });
@@ -69,8 +69,8 @@ SavedDestination.belongsTo(User, { foreignKey: 'UserId' });
 City.hasMany(SavedDestination, { foreignKey: 'CityId' });
 SavedDestination.belongsTo(City, { foreignKey: 'CityId' });
 
-Trip.hasMany(SharedTripView, { foreignKey: 'TripId' });
-SharedTripView.belongsTo(Trip, { foreignKey: 'TripId' });
+Trip.hasMany(SharedTripView, { foreignKey: 'tripId' });
+SharedTripView.belongsTo(Trip, { foreignKey: 'tripId' });
 
 User.hasMany(Notification, { foreignKey: 'UserId' });
 Notification.belongsTo(User, { foreignKey: 'UserId' });

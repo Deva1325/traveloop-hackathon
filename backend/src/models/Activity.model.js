@@ -1,15 +1,12 @@
 const { DataTypes } = require('sequelize');
 module.exports = (sequelize) => {
   return sequelize.define('Activity', {
-    ActivityId: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true },
-    CityId: { type: DataTypes.UUID, allowNull: false },
-    ActivityCategoryId: { type: DataTypes.UUID, allowNull: true },
-    Title: { type: DataTypes.STRING(150), allowNull: false },
-    Description: { type: DataTypes.TEXT, allowNull: true },
-    DurationHours: { type: DataTypes.DECIMAL(5,2), defaultValue: 0 },
-    EstimatedCost: { type: DataTypes.DECIMAL(12,2), defaultValue: 0 },
-    Rating: { type: DataTypes.DECIMAL(3,2), defaultValue: 0 },
-    ActivityImageUrl: { type: DataTypes.STRING(500), allowNull: true },
-    IsPopular: { type: DataTypes.BOOLEAN, defaultValue: false }
-  }, { tableName: 'Activities', timestamps: true, createdAt: 'CreatedAt', updatedAt: false });
+    id: { type: DataTypes.UUID, defaultValue: DataTypes.UUIDV4, primaryKey: true, field: 'ActivityId' },
+    cityId: { type: DataTypes.UUID, allowNull: false, field: 'CityId' },
+    activityCategoryId: { type: DataTypes.UUID, allowNull: false, field: 'ActivityCategoryId' },
+    name: { type: DataTypes.STRING(200), allowNull: false, field: 'Name' },
+    description: { type: DataTypes.TEXT, allowNull: true, field: 'Description' },
+    estimatedCost: { type: DataTypes.DECIMAL(10,2), defaultValue: 0, field: 'EstimatedCost' },
+    imageUrl: { type: DataTypes.STRING(500), allowNull: true, field: 'ImageUrl' }
+  }, { tableName: 'Activities', timestamps: true, createdAt: 'CreatedAt', updatedAt: 'UpdatedAt' });
 };
