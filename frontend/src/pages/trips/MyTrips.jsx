@@ -107,12 +107,6 @@ export default function MyTrips() {
                   <h3 className="font-bold text-xl line-clamp-1 group-hover:text-primary transition-colors">
                     <Link to={`/trips/${trip.id}`}>{trip.title}</Link>
                   </h3>
-                  <div className="relative">
-                    <button className="text-muted-foreground hover:bg-muted p-1 rounded-md transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100">
-                      <MoreVertical className="w-4 h-4" />
-                    </button>
-                    {/* Minimal dropdown placeholder */}
-                  </div>
                 </div>
                 
                 <p className="text-muted-foreground text-sm flex items-center gap-2 mb-4">
@@ -126,7 +120,17 @@ export default function MyTrips() {
                     {trip.destinations?.length || 0} Destinations
                   </div>
                   <div className="flex gap-2">
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary" title="Share">
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="h-8 w-8 text-muted-foreground hover:text-primary" 
+                      title="Share"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        navigator.clipboard.writeText(`${window.location.origin}/trips/${trip.id}`);
+                        toast.success('Trip link copied to clipboard!');
+                      }}
+                    >
                       <Share2 className="w-4 h-4" />
                     </Button>
                     <Button 
