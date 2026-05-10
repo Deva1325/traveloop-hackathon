@@ -7,6 +7,15 @@ class ExpenseService {
     const trip = await tripRepository.findById(data.tripId);
     if (!trip) throw new ApiError(404, 'Trip not found');
     if (trip.userId !== userId) throw new ApiError(403, 'Access denied');
+    
+    // Validate expense date
+    const expenseDate = new Date(data.expenseDate);
+    const tripStart = new Date(trip.startDate);
+    const tripEnd = new Date(trip.endDate);
+    
+    if (expenseDate < tripStart || expenseDate > tripEnd) {
+      throw new ApiError(400, `Expense date must be between ${trip.startDate} and ${trip.endDate}`);
+    }
 
     return await expenseRepository.create(data);
   }
@@ -25,6 +34,17 @@ class ExpenseService {
     
     const trip = await tripRepository.findById(expense.tripId);
     if (trip.userId !== userId) throw new ApiError(403, 'Access denied');
+
+    // Validate expense date if provided
+    if (data.expenseDate) {
+      const expenseDate = new Date(data.expenseDate);
+      const tripStart = new Date(trip.startDate);
+      const tripEnd = new Date(trip.endDate);
+      
+      if (expenseDate < tripStart || expenseDate > tripEnd) {
+        throw new ApiError(400, `Expense date must be between ${trip.startDate} and ${trip.endDate}`);
+      }
+    }
 
     await expenseRepository.update(id, data);
     return await expenseRepository.findById(id);
