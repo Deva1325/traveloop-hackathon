@@ -15,6 +15,11 @@ export const reorderStops = async (tripId, stops) => {
   return response.data.data;
 };
 
+export const updateStop = async (tripId, stopId, stopData) => {
+  const response = await axiosInstance.put(`/trips/${tripId}/stops/${stopId}`, stopData);
+  return response.data.data;
+};
+
 export const searchCities = async (query) => {
   const response = await axiosInstance.get(`/public/cities?search=${query}`);
   return response.data.data;
