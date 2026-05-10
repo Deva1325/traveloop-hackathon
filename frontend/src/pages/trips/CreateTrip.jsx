@@ -78,7 +78,7 @@ export default function CreateTrip() {
     let fieldsToValidate = [];
     if (step === 1) fieldsToValidate = ['title', 'description', 'coverImage'];
     if (step === 2) fieldsToValidate = ['startDate', 'endDate', 'budget'];
-    
+
     const isStepValid = await trigger(fieldsToValidate);
     if (isStepValid) setStep((s) => s + 1);
   };
@@ -119,12 +119,11 @@ export default function CreateTrip() {
       <div className="flex items-center justify-between mb-8 relative">
         <div className="absolute left-0 top-1/2 -translate-y-1/2 w-full h-1 bg-muted rounded-full -z-10"></div>
         <div className="absolute left-0 top-1/2 -translate-y-1/2 h-1 bg-primary rounded-full -z-10 transition-all duration-500" style={{ width: `${((step - 1) / (STEPS.length - 1)) * 100}%` }}></div>
-        
+
         {STEPS.map((s) => (
           <div key={s.id} className="flex flex-col items-center gap-2 bg-background p-1">
-            <div className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-colors ${
-              step >= s.id ? 'bg-primary border-primary text-primary-foreground' : 'bg-card border-muted text-muted-foreground'
-            }`}>
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-colors ${step >= s.id ? 'bg-primary border-primary text-primary-foreground' : 'bg-card border-muted text-muted-foreground'
+              }`}>
               <s.icon className="w-5 h-5" />
             </div>
             <span className={`text-xs font-medium ${step >= s.id ? 'text-foreground' : 'text-muted-foreground'}`}>{s.name}</span>
@@ -137,8 +136,18 @@ export default function CreateTrip() {
           <div className="h-full bg-primary transition-all duration-500" style={{ width: `${(step / STEPS.length) * 100}%` }}></div>
         </div>
         <CardContent className="p-8">
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            
+          <form
+            onSubmit={(e) => {
+              if (step < STEPS.length) {
+                e.preventDefault();
+                nextStep();
+              } else {
+                handleSubmit(onSubmit)(e);
+              }
+            }}
+            className="space-y-6"
+          >
+
             {/* Step 1: Basics */}
             {step === 1 && (
               <div className="space-y-6 animate-in slide-in-from-right-8">
@@ -147,12 +156,12 @@ export default function CreateTrip() {
                   <Input {...register("title")} placeholder="e.g. Summer Backpacking in Europe" className="text-lg py-6" />
                   {errors.title && <p className="text-sm text-destructive">{errors.title.message}</p>}
                 </div>
-                
+
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Description (Optional)</label>
-                  <textarea 
-                    {...register("description")} 
-                    placeholder="What's the vibe of this trip?" 
+                  <textarea
+                    {...register("description")}
+                    placeholder="What's the vibe of this trip?"
                     className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                   />
                 </div>
@@ -162,7 +171,7 @@ export default function CreateTrip() {
                     <ImageIcon className="w-4 h-4" /> Cover Image
                   </label>
                   <div className="flex flex-col gap-4">
-                    <div 
+                    <div
                       className="border-2 border-dashed rounded-2xl p-8 flex flex-col items-center justify-center gap-3 hover:bg-muted/50 transition-colors cursor-pointer relative group"
                       onClick={() => document.getElementById('image-upload').click()}
                     >
@@ -179,16 +188,16 @@ export default function CreateTrip() {
                           </div>
                         </>
                       )}
-                      <input 
-                        id="image-upload" 
-                        type="file" 
-                        accept="image/*" 
-                        className="hidden" 
+                      <input
+                        id="image-upload"
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
                         onChange={handleImageUpload}
                         disabled={isUploading}
                       />
                     </div>
-                    
+
                     {formValues.coverImage && (
                       <div className="relative rounded-xl overflow-hidden h-48 border shadow-inner">
                         <img src={formValues.coverImage} alt="Cover Preview" className="w-full h-full object-cover" />
@@ -235,7 +244,7 @@ export default function CreateTrip() {
                   </div>
                   <h3 className="text-2xl font-bold mb-2">{formValues.title}</h3>
                   <p className="text-muted-foreground mb-4">{formValues.description || 'No description provided.'}</p>
-                  
+
                   <div className="grid grid-cols-2 gap-4 border-t pt-4">
                     <div>
                       <p className="text-sm text-muted-foreground">Dates</p>
@@ -256,9 +265,9 @@ export default function CreateTrip() {
               <Button type="button" variant="outline" onClick={prevStep} disabled={step === 1 || mutation.isPending}>
                 <ArrowLeft className="w-4 h-4 mr-2" /> Back
               </Button>
-              
+
               {step < STEPS.length ? (
-                <Button type="button" onClick={nextStep} className="gap-2">
+                <Button type="submit" className="gap-2">
                   Next <ArrowRight className="w-4 h-4" />
                 </Button>
               ) : (
