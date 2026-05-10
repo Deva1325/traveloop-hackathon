@@ -43,6 +43,10 @@ export const useAuthStore = create((set) => ({
     set({ user: null, isAuthenticated: false });
   },
 
+  setUser: (user) => {
+    set({ user });
+  },
+
   checkAuth: async () => {
     const token = localStorage.getItem('traveloop_token');
     if (!token) {

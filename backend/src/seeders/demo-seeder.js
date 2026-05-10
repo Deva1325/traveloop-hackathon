@@ -12,8 +12,13 @@ const seed = async () => {
     });
     
     await City.findOrCreate({
-      where: { CityName: 'Paris' },
-      defaults: { CountryName: 'France', CountryCode: 'FR' }
+      where: { name: 'Paris' },
+      defaults: { country: 'France', imageUrl: 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=800' }
+    });
+    
+    await City.findOrCreate({
+      where: { name: 'London' },
+      defaults: { country: 'United Kingdom', imageUrl: 'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=800' }
     });
     
     console.log('Seed executed successfully');

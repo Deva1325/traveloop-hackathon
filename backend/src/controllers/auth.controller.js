@@ -16,5 +16,15 @@ class AuthController {
     const user = await authService.getProfile(req.user.id);
     sendSuccess(res, 'Profile retrieved', user);
   }
+
+  async updateProfile(req, res) {
+    const user = await authService.updateProfile(req.user.id, req.body);
+    sendSuccess(res, 'Profile updated', user);
+  }
+
+  async deleteAccount(req, res) {
+    await authService.deleteAccount(req.user.id);
+    sendSuccess(res, 'Account deleted successfully');
+  }
 }
 module.exports = new AuthController();

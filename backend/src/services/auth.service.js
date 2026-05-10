@@ -38,6 +38,29 @@ class AuthService {
     return userData;
   }
 
+  async updateProfile(userId, data) {
+    const user = await userRepository.findById(userId);
+    if (!user) throw new ApiError(404, 'User not found');
+    
+    // Map frontend fields to backend model fields
+    const updateData = {};
+    if (data.fullName) updateData.FullName = data.fullName;
+    if (data.email) updateData.Email = data.email;
+    if (data.profileImageUrl) updateData.ProfileImageUrl = data.profileImageUrl;
+    if (data.bio) updateData.Bio = data.bio;
+    if (data.location) updateData.Location = data.location;
+    if (data.language) updateData.Language = data.language;
+
+    await userRepository.update(userId, updateData);
+    return this.getProfile(userId);
+  }
+
+  async deleteAccount(userId) {
+    const user = await userRepository.findById(userId);
+    if (!user) throw new ApiError(404, 'User not found');
+    return await userRepository.delete(userId);
+  }
+
   async _generateTokens(userId) {
     const token = jwt.sign({ id: userId }, env.JWT_SECRET, { expiresIn: env.JWT_EXPIRES_IN });
     const refreshToken = jwt.sign({ id: userId }, env.JWT_REFRESH_SECRET, { expiresIn: env.JWT_REFRESH_EXPIRES_IN });

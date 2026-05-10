@@ -4,6 +4,7 @@ const authRoutes = require('./auth.routes');
 const tripRoutes = require('./trip.routes');
 
 router.use('/upload', require('./upload.routes'));
+router.use('/users', require('./user.routes'));
 router.use('/auth', authRoutes);
 router.use('/trips', tripRoutes);
 router.use('/public', require('./public.routes'));

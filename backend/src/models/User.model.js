@@ -28,6 +28,14 @@ module.exports = (sequelize) => {
       type: DataTypes.STRING(500),
       allowNull: true,
     },
+    Location: {
+      type: DataTypes.STRING(150),
+      allowNull: true,
+    },
+    Language: {
+      type: DataTypes.STRING(50),
+      defaultValue: 'English',
+    },
     IsActive: {
       type: DataTypes.BOOLEAN,
       defaultValue: true,
@@ -35,8 +43,10 @@ module.exports = (sequelize) => {
   }, {
     tableName: 'Users',
     timestamps: true,
+    paranoid: true, // Enables soft delete (deletedAt)
     createdAt: 'CreatedAt',
     updatedAt: 'UpdatedAt',
+    deletedAt: 'DeletedAt',
   });
 
   return User;
