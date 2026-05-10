@@ -5,12 +5,13 @@ export const useAuthStore = create((set) => ({
   user: null,
   isAuthenticated: false,
   isLoading: false,
+  isInitialized: false,
 
   login: async (email, password) => {
     set({ isLoading: true });
     try {
       const response = await axiosInstance.post('/auth/login', { email, password });
-      const { token, user } = response.data;
+      const { token, user } = response.data.data;
 
       localStorage.setItem('traveloop_token', token);
       set({ user, isAuthenticated: true, isLoading: false });
@@ -26,7 +27,7 @@ export const useAuthStore = create((set) => ({
     set({ isLoading: true });
     try {
       const response = await axiosInstance.post('/auth/register', { name, email, password });
-      const { token, user } = response.data;
+      const { token, user } = response.data.data;
 
       localStorage.setItem('traveloop_token', token);
       set({ user, isAuthenticated: true, isLoading: false });
@@ -45,17 +46,16 @@ export const useAuthStore = create((set) => ({
   checkAuth: async () => {
     const token = localStorage.getItem('traveloop_token');
     if (!token) {
-      set({ user: null, isAuthenticated: false });
+      set({ user: null, isAuthenticated: false, isInitialized: true });
       return;
     }
 
     try {
-      // Assuming you have a /auth/me or similar endpoint to verify token
       const response = await axiosInstance.get('/auth/profile');
-      set({ user: response.data, isAuthenticated: true });
+      set({ user: response.data.data, isAuthenticated: true, isInitialized: true });
     } catch (error) {
       localStorage.removeItem('traveloop_token');
-      set({ user: null, isAuthenticated: false });
+      set({ user: null, isAuthenticated: false, isInitialized: true });
     }
   }
 }));

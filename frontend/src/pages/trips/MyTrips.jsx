@@ -123,7 +123,7 @@ export default function MyTrips() {
                 <div className="flex items-center justify-between mt-auto pt-4 border-t">
                   <div className="flex items-center gap-1.5 text-sm font-medium">
                     <MapPin className="w-4 h-4 text-primary" />
-                    {trip.destinations.length} Destinations
+                    {trip.destinations?.length || 0} Destinations
                   </div>
                   <div className="flex gap-2">
                     <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary" title="Share">

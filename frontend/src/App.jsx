@@ -38,8 +38,16 @@ const queryClient = new QueryClient({
 });
 
 function ProtectedRoute({ children }) {
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const { isAuthenticated, isInitialized } = useAuthStore();
   const location = useLocation();
+
+  if (!isInitialized) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
 
   if (!isAuthenticated) {
     return <Navigate to="/login" state={{ from: location }} replace />;
@@ -48,7 +56,12 @@ function ProtectedRoute({ children }) {
 }
 
 function PublicRoute({ children }) {
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const { isAuthenticated, isInitialized } = useAuthStore();
+  
+  if (!isInitialized) {
+    return null; // Silent wait for public routes
+  }
+
   if (isAuthenticated) {
     return <Navigate to="/dashboard" replace />;
   }

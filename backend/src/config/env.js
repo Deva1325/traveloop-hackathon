@@ -8,8 +8,8 @@ module.exports.env = {
   DB_NAME: process.env.DB_NAME || 'TraveloopDB',
   DB_USER: process.env.DB_USER,
   DB_PASSWORD: process.env.DB_PASSWORD,
-  JWT_SECRET: process.env.JWT_SECRET,
+  JWT_SECRET: process.env.JWT_SECRET || 'traveloop_secret_key_fixed_123',
   JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN || '1d',
-  JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET,
+  JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET || 'traveloop_refresh_fixed_456',
   JWT_REFRESH_EXPIRES_IN: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
 };

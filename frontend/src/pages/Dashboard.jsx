@@ -1,8 +1,8 @@
 import { Link } from 'react-router-dom';
-import { 
-  Plane, 
-  MapPin, 
-  Calendar, 
+import {
+  Plane,
+  MapPin,
+  Calendar,
   Wallet,
   ArrowRight,
   TrendingUp,
@@ -32,8 +32,8 @@ export default function Dashboard() {
           <h1 className="text-3xl font-bold tracking-tight">Welcome back, Alex! 👋</h1>
           <p className="text-muted-foreground mt-1">Ready for your next adventure?</p>
         </div>
-        <Link 
-          to="/trips/new" 
+        <Link
+          to="/trips/new"
           className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-primary text-primary-foreground rounded-full font-medium hover:bg-primary/90 transition-all shadow-lg hover:shadow-primary/25"
         >
           <Plus className="w-5 h-5" />
@@ -79,9 +79,9 @@ export default function Dashboard() {
             {trips?.map((trip) => (
               <Link key={trip.id} to={`/trips/${trip.id}`} className="group relative bg-card rounded-2xl overflow-hidden border shadow-sm hover:shadow-xl transition-all duration-300">
                 <div className="aspect-[4/3] w-full overflow-hidden relative">
-                  <img 
-                    src={trip.coverImage} 
-                    alt={trip.title} 
+                  <img
+                    src={trip.coverImage}
+                    alt={trip.title}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-60"></div>
@@ -92,7 +92,7 @@ export default function Dashboard() {
                     <h3 className="font-bold text-xl truncate">{trip.title}</h3>
                     <p className="text-sm text-white/80 mt-1 flex items-center gap-1">
                       <Calendar className="w-4 h-4" />
-                      {new Date(trip.startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - 
+                      {new Date(trip.startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} -
                       {new Date(trip.endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                     </p>
                   </div>
@@ -100,7 +100,7 @@ export default function Dashboard() {
                 <div className="p-4 flex items-center justify-between">
                   <div className="flex items-center gap-1 text-sm text-muted-foreground">
                     <MapPin className="w-4 h-4" />
-                    <span>{trip.destinations.length} Stops</span>
+                    <span>{trip.destinations?.length || 0} Stops</span>
                   </div>
                   <div className="font-semibold text-primary">
                     ${trip.budget}

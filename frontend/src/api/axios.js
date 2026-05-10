@@ -26,9 +26,7 @@ axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Handle unauthorized access
-      localStorage.removeItem('traveloop_token');
-      // window.location.href = '/login'; // Optional: Redirect to login
+      // Logic for 401s handled by stores
     }
     return Promise.reject(error);
   }
