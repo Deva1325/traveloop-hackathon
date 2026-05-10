@@ -21,6 +21,13 @@ const seed = async () => {
       defaults: { country: 'United Kingdom', imageUrl: 'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?w=800' }
     });
 
+    const categories = ['Transport', 'Accommodation', 'Activities', 'Food', 'Shopping', 'Miscellaneous'];
+    for (const category of categories) {
+      await require('../models').ExpenseCategory.findOrCreate({
+        where: { CategoryName: category }
+      });
+    }
+
     console.log('Seed executed successfully');
     process.exit(0);
   } catch (error) {

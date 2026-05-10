@@ -7,6 +7,7 @@ router.use('/upload', require('./upload.routes'));
 router.use('/users', require('./user.routes'));
 router.use('/auth', authRoutes);
 router.use('/trips', tripRoutes);
+router.use('/expenses', require('./expense.routes'));
 router.use('/public', require('./public.routes'));
 router.use('/analytics', require('./analytics.routes'));
 router.use('/activities', require('./activity.routes'));
