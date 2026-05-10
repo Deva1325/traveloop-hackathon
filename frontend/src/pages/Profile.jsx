@@ -33,8 +33,8 @@ export default function Profile() {
 
   const { register, handleSubmit, reset, setValue, watch } = useForm({
     defaultValues: {
-      fullName: user?.FullName || '',
-      email: user?.Email || '',
+      fullName: user?.FullName || user?.name || '',
+      email: user?.Email || user?.email || '',
       bio: user?.Bio || '',
       location: user?.Location || '',
       language: user?.Language || 'English',
@@ -47,8 +47,8 @@ export default function Profile() {
   useEffect(() => {
     if (user) {
       reset({
-        fullName: user.FullName,
-        email: user.Email,
+        fullName: user.FullName || user.name || '',
+        email: user.Email || user.email || '',
         bio: user.Bio || '',
         location: user.Location || '',
         language: user.Language || 'English',
@@ -194,8 +194,8 @@ export default function Profile() {
             </div>
 
             <div className="space-y-2">
-              <h2 className="text-2xl font-bold text-foreground">{user?.FullName}</h2>
-              <p className="text-muted-foreground font-medium">{user?.Email}</p>
+              <h2 className="text-2xl font-bold text-foreground">{user?.FullName || user?.name || 'Traveler'}</h2>
+              <p className="text-muted-foreground font-medium">{user?.Email || user?.email}</p>
             </div>
 
             <div className="mt-8 grid grid-cols-2 gap-4">
@@ -265,11 +265,11 @@ export default function Profile() {
                   ) : (
                     <div className="flex items-center gap-4 p-4 bg-muted/20 rounded-2xl border border-transparent">
                       <User className="w-5 h-5 text-primary/60" />
-                      <p className="font-semibold text-foreground text-lg">{user?.FullName}</p>
+                      <p className="font-semibold text-foreground text-lg">{user?.FullName || user?.name || 'Traveler'}</p>
                     </div>
                   )}
                 </div>
-
+ 
                 <div className="space-y-3">
                   <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest px-1">Email Address</label>
                   {isEditing ? (
@@ -277,7 +277,7 @@ export default function Profile() {
                   ) : (
                     <div className="flex items-center gap-4 p-4 bg-muted/20 rounded-2xl border border-transparent">
                       <Mail className="w-5 h-5 text-primary/60" />
-                      <p className="font-semibold text-foreground text-lg">{user?.Email}</p>
+                      <p className="font-semibold text-foreground text-lg">{user?.Email || user?.email}</p>
                     </div>
                   )}
                 </div>

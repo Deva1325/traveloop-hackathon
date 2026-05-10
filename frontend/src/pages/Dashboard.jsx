@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { getTrips } from '@/api/trips.api';
+import { useAuthStore } from '@/store/authStore';
 
 const STATS = [
   { label: 'Total Trips', value: '12', icon: Plane, color: 'text-blue-500', bg: 'bg-blue-500/10' },
@@ -19,6 +20,7 @@ const STATS = [
 ];
 
 export default function Dashboard() {
+  const { user } = useAuthStore();
   const { data: trips, isLoading } = useQuery({
     queryKey: ['trips'],
     queryFn: getTrips,
@@ -29,7 +31,7 @@ export default function Dashboard() {
       {/* Welcome Section */}
       <section className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Welcome back, Alex! 👋</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Welcome back, {user?.name || 'Traveler'}! 👋</h1>
           <p className="text-muted-foreground mt-1">Ready for your next adventure?</p>
         </div>
         <Link

@@ -1,9 +1,11 @@
 import { create } from 'zustand';
 import axiosInstance from '@/api/axios';
 
+const token = localStorage.getItem('traveloop_token');
+
 export const useAuthStore = create((set) => ({
   user: null,
-  isAuthenticated: false,
+  isAuthenticated: !!token,
   isLoading: false,
   isInitialized: false,
 
@@ -14,7 +16,12 @@ export const useAuthStore = create((set) => ({
       const { token, user } = response.data.data;
 
       localStorage.setItem('traveloop_token', token);
-      set({ user, isAuthenticated: true, isLoading: false });
+      
+      // Fetch full profile immediately to ensure all fields (Bio, Location, etc.) are present
+      const profileResponse = await axiosInstance.get('/auth/profile');
+      const fullUser = profileResponse.data.data;
+
+      set({ user: fullUser, isAuthenticated: true, isLoading: false });
       return { success: true };
     } catch (error) {
       set({ isLoading: false });
@@ -30,7 +37,12 @@ export const useAuthStore = create((set) => ({
       const { token, user } = response.data.data;
 
       localStorage.setItem('traveloop_token', token);
-      set({ user, isAuthenticated: true, isLoading: false });
+      
+      // Fetch full profile immediately
+      const profileResponse = await axiosInstance.get('/auth/profile');
+      const fullUser = profileResponse.data.data;
+
+      set({ user: fullUser, isAuthenticated: true, isLoading: false });
       return { success: true };
     } catch (error) {
       set({ isLoading: false });
