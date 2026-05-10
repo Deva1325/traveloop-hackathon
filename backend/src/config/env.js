@@ -12,4 +12,7 @@ module.exports.env = {
   JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN || '1d',
   JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET || 'traveloop_refresh_fixed_456',
   JWT_REFRESH_EXPIRES_IN: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
+  CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME,
+  CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY,
+  CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET,
 };
