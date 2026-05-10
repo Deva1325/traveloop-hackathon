@@ -30,7 +30,7 @@ export default function Login() {
       toast.success('Successfully logged in!');
       navigate('/dashboard');
     } catch (error) {
-      toast.error(error.message || 'Failed to login');
+      toast.error(error || 'Failed to login');
     }
   };
 

@@ -9,7 +9,10 @@ const sequelize = new Sequelize(env.DB_NAME, env.DB_USER, env.DB_PASSWORD, {
   dialectOptions: {
     options: {
       encrypt: true,
-      trustServerCertificate: true, // For local dev
+      trustServerCertificate: true,
+      cryptoCredentialsDetails: {
+        minVersion: 'TLSv1'
+      }
     }
   }
 });

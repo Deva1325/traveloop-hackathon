@@ -21,7 +21,7 @@ app.use(morgan('dev'));
 
 // Routes
 swaggerSetup(app);
-app.use('/api/v1', routes);
+app.use('/api', routes);
 
 // Error Handling
 app.use(notFound);

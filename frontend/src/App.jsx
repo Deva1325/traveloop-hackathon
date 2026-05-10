@@ -11,6 +11,7 @@ import MainLayout from '@/layouts/MainLayout';
 import Dashboard from '@/pages/Dashboard';
 import Login from '@/pages/auth/Login';
 import Signup from '@/pages/auth/Signup';
+import ForgotPassword from '@/pages/auth/ForgotPassword';
 import MyTrips from '@/pages/trips/MyTrips';
 import CreateTrip from '@/pages/trips/CreateTrip';
 import TripDetails from '@/pages/trip/TripDetails';
@@ -68,6 +69,7 @@ function App() {
           {/* Public Auth Routes */}
           <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
           <Route path="/signup" element={<PublicRoute><Signup /></PublicRoute>} />
+          <Route path="/forgot-password" element={<PublicRoute><ForgotPassword /></PublicRoute>} />
 
           {/* Protected Main Layout routes */}
           <Route element={<ProtectedRoute><MainLayout /></ProtectedRoute>}>

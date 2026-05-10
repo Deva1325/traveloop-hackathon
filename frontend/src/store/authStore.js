@@ -11,13 +11,14 @@ export const useAuthStore = create((set) => ({
     try {
       const response = await axiosInstance.post('/auth/login', { email, password });
       const { token, user } = response.data;
-      
+
       localStorage.setItem('traveloop_token', token);
       set({ user, isAuthenticated: true, isLoading: false });
       return { success: true };
     } catch (error) {
       set({ isLoading: false });
-      throw error.response?.data?.message || error.message || 'Login failed';
+      const errorMsg = error.response?.data?.message || error.message || 'Login failed';
+      throw errorMsg;
     }
   },
 
@@ -26,7 +27,7 @@ export const useAuthStore = create((set) => ({
     try {
       const response = await axiosInstance.post('/auth/register', { name, email, password });
       const { token, user } = response.data;
-      
+
       localStorage.setItem('traveloop_token', token);
       set({ user, isAuthenticated: true, isLoading: false });
       return { success: true };
@@ -47,7 +48,7 @@ export const useAuthStore = create((set) => ({
       set({ user: null, isAuthenticated: false });
       return;
     }
-    
+
     try {
       // Assuming you have a /auth/me or similar endpoint to verify token
       const response = await axiosInstance.get('/auth/profile');
