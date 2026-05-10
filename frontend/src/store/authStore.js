@@ -1,7 +1,5 @@
 import { create } from 'zustand';
-import { mockUser } from '@/data/mockData';
-
-const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+import axiosInstance from '@/api/axios';
 
 export const useAuthStore = create((set) => ({
   user: null,
@@ -11,31 +9,30 @@ export const useAuthStore = create((set) => ({
   login: async (email, password) => {
     set({ isLoading: true });
     try {
-      await delay(1000); // Simulate API call
-      // Mock validation
-      if (email === 'alex@traveloop.com' && password === 'password') {
-        localStorage.setItem('traveloop_token', 'mock_token_123');
-        set({ user: mockUser, isAuthenticated: true, isLoading: false });
-        return { success: true };
-      }
-      throw new Error('Invalid credentials');
+      const response = await axiosInstance.post('/auth/login', { email, password });
+      const { token, user } = response.data;
+      
+      localStorage.setItem('traveloop_token', token);
+      set({ user, isAuthenticated: true, isLoading: false });
+      return { success: true };
     } catch (error) {
       set({ isLoading: false });
-      throw error;
+      throw error.response?.data?.message || error.message || 'Login failed';
     }
   },
 
   signup: async (name, email, password) => {
     set({ isLoading: true });
     try {
-      await delay(1000);
-      localStorage.setItem('traveloop_token', 'mock_token_123');
-      const newUser = { id: 'u2', name, email, avatar: 'https://i.pravatar.cc/150?u=newuser' };
-      set({ user: newUser, isAuthenticated: true, isLoading: false });
+      const response = await axiosInstance.post('/auth/register', { name, email, password });
+      const { token, user } = response.data;
+      
+      localStorage.setItem('traveloop_token', token);
+      set({ user, isAuthenticated: true, isLoading: false });
       return { success: true };
     } catch (error) {
       set({ isLoading: false });
-      throw error;
+      throw error.response?.data?.message || error.message || 'Signup failed';
     }
   },
 
@@ -44,12 +41,19 @@ export const useAuthStore = create((set) => ({
     set({ user: null, isAuthenticated: false });
   },
 
-  checkAuth: () => {
+  checkAuth: async () => {
     const token = localStorage.getItem('traveloop_token');
-    if (token) {
-      // In a real app, we'd fetch the user profile with the token
-      set({ user: mockUser, isAuthenticated: true });
-    } else {
+    if (!token) {
+      set({ user: null, isAuthenticated: false });
+      return;
+    }
+    
+    try {
+      // Assuming you have a /auth/me or similar endpoint to verify token
+      const response = await axiosInstance.get('/auth/profile');
+      set({ user: response.data, isAuthenticated: true });
+    } catch (error) {
+      localStorage.removeItem('traveloop_token');
       set({ user: null, isAuthenticated: false });
     }
   }

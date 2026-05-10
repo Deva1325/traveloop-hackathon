@@ -1,44 +1,26 @@
-import { mockTrips } from '@/data/mockData';
-
-// Simulated delay to mimic network request
-const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+import axiosInstance from './axios';
 
 export const getTrips = async () => {
-  await delay(500);
-  return mockTrips;
+  const response = await axiosInstance.get('/trips');
+  return response.data;
 };
 
 export const getTripById = async (id) => {
-  await delay(500);
-  const trip = mockTrips.find((t) => t.id === id);
-  if (!trip) throw new Error('Trip not found');
-  return trip;
+  const response = await axiosInstance.get(`/trips/${id}`);
+  return response.data;
 };
 
 export const createTrip = async (tripData) => {
-  await delay(800);
-  const newTrip = {
-    ...tripData,
-    id: `t${Date.now()}`,
-    status: 'draft',
-    destinations: tripData.destinations || [],
-  };
-  mockTrips.push(newTrip);
-  return newTrip;
+  const response = await axiosInstance.post('/trips', tripData);
+  return response.data;
 };
 
 export const updateTrip = async (id, tripData) => {
-  await delay(500);
-  const index = mockTrips.findIndex((t) => t.id === id);
-  if (index === -1) throw new Error('Trip not found');
-  mockTrips[index] = { ...mockTrips[index], ...tripData };
-  return mockTrips[index];
+  const response = await axiosInstance.put(`/trips/${id}`, tripData);
+  return response.data;
 };
 
 export const deleteTrip = async (id) => {
-  await delay(500);
-  const index = mockTrips.findIndex((t) => t.id === id);
-  if (index === -1) throw new Error('Trip not found');
-  mockTrips.splice(index, 1);
-  return { success: true };
+  const response = await axiosInstance.delete(`/trips/${id}`);
+  return response.data;
 };
