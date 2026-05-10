@@ -11,8 +11,6 @@ import {
   LogOut,
   Menu,
   X,
-  Search,
-  Bell
 } from 'lucide-react';
 import { useAuthStore } from '@/store/authStore';
 import { useNavigate } from 'react-router-dom';
@@ -117,26 +115,11 @@ export default function MainLayout() {
             </Link>
           </div>
 
-          <div className="hidden md:flex flex-1 max-w-md mx-auto items-center relative">
-            <Search className="w-4 h-4 text-muted-foreground absolute left-3" />
-            <input
-              type="text"
-              placeholder="Search trips, destinations..."
-              className="w-full bg-muted/50 border-none rounded-full py-2 pl-10 pr-4 text-sm focus:ring-2 focus:ring-primary/20 outline-none transition-all"
-            />
-          </div>
+          <div className="flex-1"></div>
 
           <div className="flex items-center gap-4">
-            <button 
-              onClick={() => navigate('/notifications')}
-              className="relative p-2 text-muted-foreground hover:bg-muted rounded-full transition-colors"
-            >
-              <Bell className="w-5 h-5" />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-destructive rounded-full border border-card"></span>
-            </button>
             <div className="hidden sm:block text-right">
               <p className="text-sm font-medium leading-none">{user?.FullName || 'Traveler'}</p>
-              <p className="text-xs text-muted-foreground mt-1">Pro Plan</p>
             </div>
             <img
               src={user?.ProfileImageUrl || "https://i.pravatar.cc/150?u=a042581f4e29026704d"}
