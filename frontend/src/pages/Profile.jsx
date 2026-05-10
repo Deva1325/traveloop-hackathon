@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/Input';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import { updateProfile, deleteAccount, getSavedDestinations, removeSavedDestination } from '@/api/user.api';
+import { getTrips } from '@/api/trips.api';
 import { uploadImage } from '@/api/upload.api';
 import { useNavigate } from 'react-router-dom';
 
@@ -26,6 +27,7 @@ export default function Profile() {
   const [isUpdating, setIsUpdating] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [savedDestinations, setSavedDestinations] = useState([]);
+  const [tripCount, setTripCount] = useState(0);
   const [isLoadingSaved, setIsLoadingSaved] = useState(false);
   const navigate = useNavigate();
 
@@ -53,8 +55,18 @@ export default function Profile() {
         profileImageUrl: user.ProfileImageUrl || '',
       });
       fetchSavedDestinations();
+      fetchTripCount();
     }
   }, [user, reset]);
+
+  const fetchTripCount = async () => {
+    try {
+      const trips = await getTrips();
+      setTripCount(trips.length);
+    } catch (error) {
+      console.error('Failed to fetch trip count', error);
+    }
+  };
 
   const fetchSavedDestinations = async () => {
     setIsLoadingSaved(true);
@@ -188,11 +200,11 @@ export default function Profile() {
 
             <div className="mt-8 grid grid-cols-2 gap-4">
               <div className="p-4 bg-muted/40 rounded-3xl border border-border/50">
-                <p className="text-2xl font-bold text-primary">12</p>
+                <p className="text-2xl font-bold text-primary">{tripCount}</p>
                 <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Trips</p>
               </div>
               <div className="p-4 bg-muted/40 rounded-3xl border border-border/50">
-                <p className="text-2xl font-bold text-primary">8</p>
+                <p className="text-2xl font-bold text-primary">{savedDestinations.length}</p>
                 <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Places</p>
               </div>
             </div>
@@ -201,10 +213,6 @@ export default function Profile() {
                <div className="flex items-center gap-3 text-muted-foreground px-4 py-2 hover:bg-muted/50 rounded-2xl transition-colors cursor-pointer">
                   <Globe className="w-5 h-5 text-primary" />
                   <span className="text-sm font-semibold">{user?.Language || 'English'}</span>
-               </div>
-               <div className="flex items-center gap-3 text-muted-foreground px-4 py-2 hover:bg-muted/50 rounded-2xl transition-colors cursor-pointer">
-                  <MapPin className="w-5 h-5 text-primary" />
-                  <span className="text-sm font-semibold">{user?.Location || 'Set Location'}</span>
                </div>
             </div>
           </div>
@@ -246,7 +254,6 @@ export default function Profile() {
                 <User className="w-6 h-6 text-primary" />
                 Personal Information
               </h3>
-              {!isEditing && <span className="text-xs font-bold text-muted-foreground bg-muted px-3 py-1 rounded-full uppercase">Read Only</span>}
             </div>
 
             <div className="p-10 space-y-10">
