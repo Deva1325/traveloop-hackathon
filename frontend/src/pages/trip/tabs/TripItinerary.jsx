@@ -34,7 +34,8 @@ import {
   LayoutList,
   History,
   DollarSign,
-  Globe
+  Globe,
+  Milestone
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
@@ -42,8 +43,8 @@ import { Badge } from '@/components/ui/Badge';
 import { addStop, deleteStop, reorderStops, updateStop } from '@/api/itinerary.api';
 import toast from 'react-hot-toast';
 
-// Sortable Item Component
-function SortableStop({ stop, onRemove, isDeleting, onUpdate, viewMode }) {
+// Sortable Item Component for List View
+function SortableStop({ stop, onRemove, isDeleting, onUpdate }) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [showAddActivity, setShowAddActivity] = useState(false);
   const [activityForm, setActivityForm] = useState({ name: '', time: '10:00', cost: '0' });
@@ -236,6 +237,95 @@ function SortableStop({ stop, onRemove, isDeleting, onUpdate, viewMode }) {
   );
 }
 
+// Timeline View Component
+function ItineraryTimeline({ stops }) {
+  // Flatten and sort all activities by date and time
+  const timelineData = useMemo(() => {
+    const data = [];
+    stops.forEach(stop => {
+      const activities = stop.activities ? (typeof stop.activities === 'string' ? JSON.parse(stop.activities) : stop.activities) : [];
+      activities.forEach(activity => {
+        data.push({
+          ...activity,
+          cityName: stop.City?.name,
+          cityImage: stop.City?.imageUrl,
+          arrivalDate: stop.arrivalDate
+        });
+      });
+    });
+    // Sort by arrival date and then by time
+    return data.sort((a, b) => {
+      if (a.arrivalDate !== b.arrivalDate) return new Date(a.arrivalDate) - new Date(b.arrivalDate);
+      return a.time.localeCompare(b.time);
+    });
+  }, [stops]);
+
+  if (timelineData.length === 0) {
+    return (
+      <div className="text-center py-32 bg-card rounded-[40px] border border-dashed border-primary/20">
+        <Milestone className="w-12 h-12 text-primary/40 mx-auto mb-4" />
+        <h3 className="text-xl font-bold mb-1">Timeline is empty</h3>
+        <p className="text-sm text-muted-foreground max-w-[280px] mx-auto">Add activities to your cities to see them in a chronological view.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-12 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      <div className="relative pl-8 md:pl-32 border-l-4 border-primary/10 ml-4 md:ml-0 space-y-12">
+        {timelineData.map((item, idx) => (
+          <div key={item.id} className="relative">
+            {/* Date Label on Left (Desktop) */}
+            <div className="hidden md:block absolute -left-32 top-1 w-24 text-right">
+              <p className="text-[10px] font-black text-muted-foreground uppercase tracking-tighter leading-none">
+                {new Date(item.arrivalDate).toLocaleDateString('en-US', { weekday: 'short' })}
+              </p>
+              <p className="text-lg font-black text-primary leading-none mt-1">
+                {new Date(item.arrivalDate).getDate()} {new Date(item.arrivalDate).toLocaleDateString('en-US', { month: 'short' })}
+              </p>
+            </div>
+
+            {/* Timeline Dot */}
+            <div className="absolute -left-[42px] top-1 w-6 h-6 rounded-full bg-primary border-4 border-background ring-8 ring-primary/5"></div>
+            
+            <div className="bg-card rounded-2xl border shadow-md p-6 flex flex-col md:flex-row gap-6 items-start hover:shadow-xl transition-all hover:border-primary/30 duration-300">
+              <div className="w-full md:w-32 h-24 rounded-xl overflow-hidden shrink-0 border relative group">
+                <img src={item.cityImage} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors"></div>
+                <div className="absolute bottom-2 left-2 px-2 py-0.5 bg-background/90 backdrop-blur-sm rounded text-[9px] font-bold uppercase">{item.cityName}</div>
+              </div>
+              
+              <div className="flex-1 space-y-2 w-full">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <Badge className="bg-primary/10 text-primary border-none text-[9px] font-black tracking-widest h-5 mb-1 flex w-fit items-center gap-1">
+                      <Clock className="w-3 h-3" /> {item.time}
+                    </Badge>
+                    <h4 className="text-xl font-black tracking-tight">{item.name}</h4>
+                  </div>
+                  {item.cost > 0 && (
+                    <div className="text-right">
+                      <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest">Estimated Cost</p>
+                      <p className="text-lg font-black text-primary">${item.cost}</p>
+                    </div>
+                  )}
+                </div>
+                <div className="flex items-center gap-3 pt-4 border-t border-dashed">
+                   <div className="flex -space-x-2">
+                     <div className="w-6 h-6 rounded-full border-2 border-background bg-muted"></div>
+                     <div className="w-6 h-6 rounded-full border-2 border-background bg-muted"></div>
+                   </div>
+                   <p className="text-[10px] font-bold text-muted-foreground uppercase">Shared with 2 travelers</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function TripItinerary() {
   const { trip } = useOutletContext();
   const queryClient = useQueryClient();
@@ -246,7 +336,7 @@ export default function TripItinerary() {
 
   const stops = useMemo(() => trip?.TripStops || [], [trip]);
 
-  // Mock list of popular cities for the search sidebar
+  // Mock list of popular cities
   const popularCities = [
     { name: 'Rome', country: 'Italy', region: 'Europe', popularity: 'High', costIndex: '$$$' },
     { name: 'Paris', country: 'France', region: 'Europe', popularity: 'Extreme', costIndex: '$$$$' },
@@ -261,8 +351,7 @@ export default function TripItinerary() {
       toast.success('Added to Trip!');
       setShowAddModal(false);
       setNewCity({ name: '', country: '', arrivalDate: '', departureDate: '', nights: 1 });
-    },
-    onError: (err) => toast.error(err.response?.data?.message || 'Error adding city')
+    }
   });
 
   const updateMutation = useMutation({
@@ -301,19 +390,14 @@ export default function TripItinerary() {
 
   const handleAddStop = (e) => {
     e.preventDefault();
-    // Validate dates don't overlap with existing stops
     const arrival = new Date(newCity.arrivalDate);
     const departure = new Date(newCity.departureDate);
-    
     const isOverlap = stops.some(s => {
       const sArr = new Date(s.arrivalDate);
       const sDep = new Date(s.departureDate);
       return (arrival < sDep && departure > sArr);
     });
-
-    if (isOverlap) {
-      return toast.error('These dates overlap with an existing stop!');
-    }
+    if (isOverlap) return toast.error('Overlap detected!');
 
     addMutation.mutate({
       cityName: newCity.name,
@@ -325,236 +409,107 @@ export default function TripItinerary() {
     });
   };
 
-  const handleQuickAdd = (city) => {
-    setNewCity(prev => ({ ...prev, name: city.name, country: city.country }));
-    setShowAddModal(true);
-  };
-
   return (
     <div className="grid grid-cols-1 lg:grid-cols-4 gap-8 animate-in fade-in h-full pb-10">
-      
-      {/* Sidebar: City Search */}
       <div className="lg:col-span-1 space-y-6">
         <div className="bg-card rounded-2xl border shadow-sm p-6 space-y-6 sticky top-6">
           <div className="space-y-2">
-            <h3 className="font-bold text-lg flex items-center gap-2">
-              <Globe className="w-5 h-5 text-primary" />
-              City Explorer
-            </h3>
+            <h3 className="font-bold text-lg flex items-center gap-2"><Globe className="w-5 h-5 text-primary" /> City Explorer</h3>
             <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">Discover & add destinations</p>
           </div>
-          
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input 
-              placeholder="Search cities/countries..." 
+              placeholder="Search cities..." 
               className="pl-9 h-11 bg-muted/50 border-none" 
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
             />
           </div>
-
           <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2 scrollbar-hide">
             {popularCities.map((city, idx) => (
               <div key={idx} className="p-4 rounded-xl border bg-muted/5 hover:border-primary/30 hover:bg-primary/5 transition-all group">
                 <div className="flex justify-between items-start mb-2">
                   <div>
-                    <h4 className="font-bold text-sm group-hover:text-primary transition-colors">{city.name}</h4>
-                    <p className="text-[10px] text-muted-foreground">{city.country} • {city.region}</p>
+                    <h4 className="font-bold text-sm group-hover:text-primary">{city.name}</h4>
+                    <p className="text-[10px] text-muted-foreground">{city.country}</p>
                   </div>
-                  <Badge variant="outline" className="text-[8px] px-1.5 h-4">{city.costIndex}</Badge>
+                  <Badge variant="outline" className="text-[8px] h-4">{city.costIndex}</Badge>
                 </div>
                 <div className="flex items-center justify-between mt-3">
-                  <div className="flex items-center gap-1 text-[9px] font-bold text-muted-foreground">
-                    <History className="w-3 h-3" /> {city.popularity} Popularity
+                  <div className="text-[9px] font-bold text-muted-foreground flex items-center gap-1">
+                    <History className="w-3 h-3" /> {city.popularity}
                   </div>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className="h-7 text-[10px] gap-1 hover:bg-primary hover:text-primary-foreground font-bold"
-                    onClick={() => handleQuickAdd(city)}
-                  >
+                  <Button variant="ghost" size="sm" className="h-7 text-[10px] font-bold" onClick={() => { setNewCity({ ...newCity, name: city.name, country: city.country }); setShowAddModal(true); }}>
                     <Plus className="w-3 h-3" /> ADD
                   </Button>
                 </div>
               </div>
             ))}
           </div>
-
-          <div className="pt-4 border-t border-dashed">
-            <div className="bg-primary/5 rounded-xl p-4 border border-primary/20">
-              <p className="text-[10px] font-bold text-primary uppercase mb-1">Travel Pro Tip</p>
-              <p className="text-xs text-muted-foreground leading-relaxed">Try to keep a gap of at least 2 nights in each city to avoid travel fatigue!</p>
-            </div>
-          </div>
         </div>
       </div>
 
-      {/* Main Content: Itinerary Builder */}
       <div className="lg:col-span-3 space-y-6">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-card p-6 rounded-3xl border shadow-sm">
           <div>
-            <h2 className="text-2xl font-bold tracking-tight">Itinerary Builder</h2>
+            <h2 className="text-2xl font-bold">Itinerary Builder</h2>
             <div className="flex items-center gap-4 mt-1">
               <p className="text-sm text-muted-foreground">Manage your stops and daily plans</p>
-              <Badge variant="secondary" className="bg-primary/10 text-primary border-none text-[10px] font-bold uppercase">{stops.length} Stops Planned</Badge>
+              <Badge className="bg-primary/10 text-primary border-none text-[10px] font-bold">{stops.length} Stops</Badge>
             </div>
           </div>
-          
           <div className="flex items-center gap-3">
             <div className="flex bg-muted p-1 rounded-lg">
-              <button 
-                onClick={() => setViewMode('list')}
-                className={`p-1.5 rounded-md transition-all ${viewMode === 'list' ? 'bg-background shadow-sm text-primary' : 'text-muted-foreground'}`}
-                title="List View"
-              >
-                <LayoutList className="w-4 h-4" />
-              </button>
-              <button 
-                onClick={() => setViewMode('timeline')}
-                className={`p-1.5 rounded-md transition-all ${viewMode === 'timeline' ? 'bg-background shadow-sm text-primary' : 'text-muted-foreground'}`}
-                title="Timeline View"
-              >
-                <Calendar className="w-4 h-4" />
-              </button>
+              <button onClick={() => setViewMode('list')} className={`p-1.5 rounded-md transition-all ${viewMode === 'list' ? 'bg-background shadow-sm text-primary' : 'text-muted-foreground'}`}><LayoutList className="w-4 h-4" /></button>
+              <button onClick={() => setViewMode('timeline')} className={`p-1.5 rounded-md transition-all ${viewMode === 'timeline' ? 'bg-background shadow-sm text-primary' : 'text-muted-foreground'}`}><Calendar className="w-4 h-4" /></button>
             </div>
-            <Button onClick={() => setShowAddModal(true)} className="gap-2 shadow-xl shadow-primary/20">
-              <Plus className="w-4 h-4" /> Add New Stop
-            </Button>
+            <Button onClick={() => setShowAddModal(true)} className="gap-2 shadow-xl shadow-primary/20"><Plus className="w-4 h-4" /> Add Stop</Button>
           </div>
         </div>
 
-        {/* Builder Area */}
-        <div className="space-y-6 min-h-[500px]">
-          {stops.length > 0 ? (
-            <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-              <SortableContext items={stops} strategy={verticalListSortingStrategy}>
-                {stops.map(stop => (
-                  <SortableStop 
-                    key={stop.id} 
-                    stop={stop} 
-                    viewMode={viewMode}
-                    onRemove={(id) => deleteMutation.mutate(id)} 
-                    isDeleting={deleteMutation.isPending}
-                    onUpdate={(stopId, data) => updateMutation.mutate({ stopId, data })}
-                  />
-                ))}
-              </SortableContext>
-            </DndContext>
+        <div className="space-y-6">
+          {viewMode === 'list' ? (
+            stops.length > 0 ? (
+              <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                <SortableContext items={stops} strategy={verticalListSortingStrategy}>
+                  {stops.map(stop => (
+                    <SortableStop key={stop.id} stop={stop} onRemove={(id) => deleteMutation.mutate(id)} isDeleting={deleteMutation.isPending} onUpdate={(stopId, data) => updateMutation.mutate({ stopId, data })} />
+                  ))}
+                </SortableContext>
+              </DndContext>
+            ) : (
+              <div className="flex flex-col items-center justify-center py-32 bg-card rounded-[40px] border border-dashed border-primary/20"><MapPin className="w-12 h-12 text-primary/20 mb-4" /><h3 className="text-xl font-bold">Your journey starts here</h3><Button onClick={() => setShowAddModal(true)} className="mt-6 rounded-full px-8">Get Started</Button></div>
+            )
           ) : (
-            <div className="flex flex-col items-center justify-center py-32 bg-card rounded-[40px] border border-dashed border-primary/20">
-              <div className="w-24 h-24 bg-primary/5 rounded-full flex items-center justify-center mb-6 animate-pulse">
-                <MapPin className="w-10 h-10 text-primary" />
-              </div>
-              <h3 className="text-2xl font-bold mb-2">Your journey starts here</h3>
-              <p className="text-muted-foreground mb-8 max-w-[320px] text-center leading-relaxed">
-                Add cities from the explorer or click "Add Stop" to manually define your itinerary.
-              </p>
-              <Button onClick={() => setShowAddModal(true)} size="lg" className="px-8 rounded-full">
-                Get Started
-              </Button>
-            </div>
+            <ItineraryTimeline stops={stops} />
           )}
         </div>
       </div>
 
-      {/* Add Stop Modal */}
       {showAddModal && (
         <div className="fixed inset-0 bg-background/90 backdrop-blur-md z-[100] flex items-center justify-center p-4">
           <div className="bg-card w-full max-w-xl border rounded-[32px] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
             <div className="p-8 border-b flex justify-between items-center bg-muted/20">
-              <div>
-                <h2 className="text-2xl font-bold">Add Destination</h2>
-                <p className="text-xs text-muted-foreground mt-1 uppercase font-bold tracking-widest">Plan your next city stop</p>
-              </div>
-              <Button variant="ghost" size="icon" className="rounded-full h-10 w-10 bg-muted/50" onClick={() => setShowAddModal(false)}>
-                <X className="w-5 h-5" />
-              </Button>
+              <div><h2 className="text-2xl font-bold">Add Destination</h2><p className="text-xs text-muted-foreground uppercase font-bold tracking-widest mt-1">Plan your next city stop</p></div>
+              <Button variant="ghost" size="icon" className="rounded-full bg-muted/50" onClick={() => setShowAddModal(false)}><X className="w-5 h-5" /></Button>
             </div>
-            
             <form onSubmit={handleAddStop} className="p-8 space-y-6">
-              {/* Added helper for occupied dates */}
               {stops.length > 0 && (
-                <div className="p-4 bg-amber-50 border border-amber-200 rounded-2xl space-y-2 animate-in slide-in-from-top-2">
-                  <p className="text-[10px] font-bold text-amber-700 uppercase tracking-widest flex items-center gap-1">
-                    <Calendar className="w-3 h-3" /> Already Occupied Dates
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    {stops.map(s => (
-                      <Badge key={s.id} variant="outline" className="bg-white border-amber-200 text-amber-700 text-[9px] font-medium">
-                        {s.City?.name}: {new Date(s.arrivalDate).toLocaleDateString()} - {new Date(s.departureDate).toLocaleDateString()}
-                      </Badge>
-                    ))}
-                  </div>
+                <div className="p-4 bg-amber-50 border border-amber-200 rounded-2xl space-y-2">
+                  <p className="text-[10px] font-bold text-amber-700 uppercase tracking-widest flex items-center gap-1"><Calendar className="w-3 h-3" /> Already Occupied Dates</p>
+                  <div className="flex flex-wrap gap-2">{stops.map(s => (<Badge key={s.id} variant="outline" className="bg-white border-amber-200 text-amber-700 text-[9px]">{s.City?.name}: {new Date(s.arrivalDate).toLocaleDateString()} - {new Date(s.departureDate).toLocaleDateString()}</Badge>))}</div>
                 </div>
               )}
-
               <div className="grid grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <label className="text-sm font-bold flex items-center gap-2">
-                    <MapPin className="w-4 h-4 text-primary" /> City Name
-                  </label>
-                  <Input 
-                    placeholder="e.g. Rome"
-                    className="h-12 text-base font-medium"
-                    value={newCity.name} 
-                    onChange={e => setNewCity({...newCity, name: e.target.value})}
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-bold flex items-center gap-2">
-                    <Globe className="w-4 h-4 text-primary" /> Country
-                  </label>
-                  <Input 
-                    placeholder="e.g. Italy"
-                    className="h-12 text-base font-medium"
-                    value={newCity.country} 
-                    onChange={e => setNewCity({...newCity, country: e.target.value})}
-                    required
-                  />
-                </div>
+                <div className="space-y-2"><label className="text-sm font-bold flex items-center gap-2"><MapPin className="w-4 h-4 text-primary" /> City Name</label><Input placeholder="e.g. Rome" className="h-12 text-base" value={newCity.name} onChange={e => setNewCity({...newCity, name: e.target.value})} required /></div>
+                <div className="space-y-2"><label className="text-sm font-bold flex items-center gap-2"><Globe className="w-4 h-4 text-primary" /> Country</label><Input placeholder="e.g. Italy" className="h-12 text-base" value={newCity.country} onChange={e => setNewCity({...newCity, country: e.target.value})} required /></div>
               </div>
-
               <div className="grid grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <label className="text-sm font-bold flex items-center gap-2">
-                    <Calendar className="w-4 h-4 text-primary" /> Arrival Date
-                  </label>
-                  <Input 
-                    type="date"
-                    className="h-12 text-base font-medium"
-                    min={trip.startDate.split('T')[0]}
-                    max={trip.endDate.split('T')[0]}
-                    value={newCity.arrivalDate} 
-                    onChange={e => setNewCity({...newCity, arrivalDate: e.target.value})}
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-bold flex items-center gap-2">
-                    <Calendar className="w-4 h-4 text-primary" /> Departure Date
-                  </label>
-                  <Input 
-                    type="date"
-                    className="h-12 text-base font-medium"
-                    min={newCity.arrivalDate || trip.startDate.split('T')[0]}
-                    max={trip.endDate.split('T')[0]}
-                    value={newCity.departureDate} 
-                    onChange={e => setNewCity({...newCity, departureDate: e.target.value})}
-                    required
-                  />
-                </div>
+                <div className="space-y-2"><label className="text-sm font-bold flex items-center gap-2"><Calendar className="w-4 h-4 text-primary" /> Arrival Date</label><Input type="date" className="h-12 text-base" min={trip.startDate.split('T')[0]} max={trip.endDate.split('T')[0]} value={newCity.arrivalDate} onChange={e => setNewCity({...newCity, arrivalDate: e.target.value})} required /></div>
+                <div className="space-y-2"><label className="text-sm font-bold flex items-center gap-2"><Calendar className="w-4 h-4 text-primary" /> Departure Date</label><Input type="date" className="h-12 text-base" min={newCity.arrivalDate || trip.startDate.split('T')[0]} max={trip.endDate.split('T')[0]} value={newCity.departureDate} onChange={e => setNewCity({...newCity, departureDate: e.target.value})} required /></div>
               </div>
-
-              <div className="pt-6 flex gap-4">
-                <Button type="button" variant="outline" className="flex-1 h-14 text-base font-bold rounded-2xl" onClick={() => setShowAddModal(false)}>
-                  Cancel
-                </Button>
-                <Button type="submit" className="flex-1 h-14 text-base font-bold rounded-2xl shadow-xl shadow-primary/20" disabled={addMutation.isPending}>
-                  {addMutation.isPending ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Confirm Stop'}
-                </Button>
-              </div>
+              <div className="pt-6 flex gap-4"><Button type="button" variant="outline" className="flex-1 h-14 font-bold rounded-2xl" onClick={() => setShowAddModal(false)}>Cancel</Button><Button type="submit" className="flex-1 h-14 font-bold rounded-2xl shadow-xl shadow-primary/20" disabled={addMutation.isPending}>{addMutation.isPending ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Confirm Stop'}</Button></div>
             </form>
           </div>
         </div>
