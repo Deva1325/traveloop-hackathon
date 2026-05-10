@@ -82,7 +82,8 @@ export default function TripDetails() {
       startDate: trip.startDate.split('T')[0],
       endDate: trip.endDate.split('T')[0],
       budget: trip.budget,
-      coverImage: trip.coverImage
+      coverImage: trip.coverImage,
+      isPublic: trip.isPublic || false
     });
     setShowEditModal(true);
     setShowSettings(false);
@@ -238,6 +239,19 @@ export default function TripDetails() {
                   onChange={e => setEditForm({...editForm, budget: e.target.value})}
                   required
                 />
+              </div>
+
+              <div className="flex items-center gap-2 py-2">
+                <input 
+                  type="checkbox" 
+                  id="isPublic"
+                  className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary"
+                  checked={editForm.isPublic}
+                  onChange={e => setEditForm({ ...editForm, isPublic: e.target.checked })}
+                />
+                <label htmlFor="isPublic" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                  Public Trip (anyone with the link can view)
+                </label>
               </div>
 
               <div className="pt-4 flex gap-3">

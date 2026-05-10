@@ -14,5 +14,13 @@ class PackingController {
     await packingService.togglePacked(req.params.tripId, req.params.itemId, req.user.id, req.body.isPacked);
     sendSuccess(res, 'Packing status updated');
   }
+  async resetChecklist(req, res) {
+    await packingService.resetChecklist(req.params.tripId, req.user.id);
+    sendSuccess(res, 'Checklist reset');
+  }
+  async deleteItem(req, res) {
+    await packingService.deleteItem(req.params.tripId, req.params.itemId, req.user.id);
+    sendSuccess(res, 'Packing item deleted');
+  }
 }
 module.exports = new PackingController();

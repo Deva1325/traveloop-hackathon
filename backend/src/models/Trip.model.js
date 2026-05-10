@@ -43,6 +43,11 @@ module.exports = (sequelize) => {
       defaultValue: 0,
       field: 'Budget'
     },
+    isPublic: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+      field: 'IsPublic'
+    },
     coverImage: {
       type: DataTypes.STRING(500),
       allowNull: true,

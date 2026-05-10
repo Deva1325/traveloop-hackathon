@@ -23,7 +23,15 @@ async function fixDatabase() {
       }
     }
 
-    // 2. Fix TripStops Table
+    // 2. Fix Trips Table (IsPublic)
+    console.log('--- Checking Trips table ---');
+    const tripTableInfo = await queryInterface.describeTable('Trips');
+    if (!tripTableInfo['IsPublic']) {
+      console.log('Adding IsPublic to Trips...');
+      await sequelize.query('ALTER TABLE [Trips] ADD [IsPublic] BIT DEFAULT 0 NOT NULL');
+    }
+
+    // 3. Fix TripStops Table
     console.log('--- Checking TripStops table ---');
     const stopTableInfo = await queryInterface.describeTable('TripStops');
     
